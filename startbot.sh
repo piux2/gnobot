@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ./build/gnobot faucet $1 \
 --pkgpath gno.land/r/faucet \

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "deploy contract..."
 ./faucet.sh deploy

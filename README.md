@@ -56,17 +56,34 @@ We can set a limit for each, say 400gnot per account. We give max 400gnot for fi
 
 ## Instruction
 
-#### 0) Compile the code
+#### 0) Install the gnokey
 
-     make
+     git clone https://github.com/gnolang/gno
+     cd gno
+     make install_gnokey
 
-#### 1) Deploy faucet contract and assign controller the faucet
+make sure you include $GOPATH/bin in $PATH
+
+#### 0.1) create admin and controller accounts
+
+     gnokey add admin
+
+     gnokey add controller1
+
+     gnokey add controller2
+
+
+#### 1) build gnobot
+
+    make
+
+#### 2) Deploy faucet contract and assign controller the faucet
 
  please modify the the address in the script.
 
      ./provison.sh
 
-#### 2) start the bot
+#### 3) start the bot
 
 check out
 

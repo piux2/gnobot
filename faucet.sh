@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 # a pacakge deployed to the realm, with package the prefixe gno.land/r/ is a smart contract code with capability to persist state on chain
 # --deposit flag: a minumn fee of 100gnot is needed to deploy the smart contract in the package path gno.land/r/
 
-default=' test1  --gas-fee 10000000ugnot --gas-wanted 1000000 --broadcast true --remote test3:36657 --chainid test3'
+default=' test1  --gas-fee 10000000ugnot --gas-wanted 1000000 --broadcast true --remote test3.gno.land:36657 --chainid test3'
 package=' --pkgdir examples/gno.land/r/faucet --pkgpath gno.land/r/faucet '
 
 #faucet admin  contract holds the faucet fund. let's deposit 200K gnot first
