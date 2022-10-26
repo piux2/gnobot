@@ -1,11 +1,8 @@
 package main
 
 import (
-	//	"flag"
 	"fmt"
-
 	"strings"
-
 	"unicode"
 
 	"github.com/bwmarrin/discordgo"
@@ -21,25 +18,19 @@ import (
 
 // Start a discord session
 func (df *DiscordFaucet) Start() error {
-
 	err := df.discordFaucet()
-
 	if err != nil {
-
 		return err
 	}
 
 	// Open a websocket connection to Discord and begin listening.
 
 	return df.session.Open()
-
 }
 
 // Close discord session smoothly
 func (df *DiscordFaucet) Close() {
-
 	df.session.Close()
-
 }
 
 // it takes discord server API token and rpc client.
@@ -47,10 +38,8 @@ func (df *DiscordFaucet) Close() {
 // and we cap the balance holding to 400 GNOT before issue new tokens from faucet
 
 func (df *DiscordFaucet) discordFaucet() error {
-
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + df.opts.BotToken)
-
 	if err != nil {
 		fmt.Println("failed to create discord bot session.", err)
 		return err
@@ -63,7 +52,6 @@ func (df *DiscordFaucet) discordFaucet() error {
 
 	// Register the messageCreate func as a callback for MessageCreate events.
 	dg.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
-
 		// Ignore all messages created by the bot itself
 		// This is a good practice.
 		if m.Author.ID == s.State.User.ID {
@@ -77,9 +65,7 @@ func (df *DiscordFaucet) discordFaucet() error {
 		// ignore message from other discord guild/server
 
 		if m.GuildID != df.opts.Guild {
-
 			return
-
 		}
 
 		// ignore message does not mention anyone
@@ -98,7 +84,6 @@ func (df *DiscordFaucet) discordFaucet() error {
 		var res string
 		// retrive toAddress from received disocrd message
 		toAddr, bal, err := df.process(m)
-
 		if err != nil {
 
 			res = fmt.Sprintf("%s", err)
@@ -114,9 +99,7 @@ func (df *DiscordFaucet) discordFaucet() error {
 		if bal.IsZero() {
 			send = std.NewCoins(perAccountLimit)
 		} else {
-
 			send, _ = std.ParseCoins(df.opts.Send)
-
 		}
 
 		err = df.sendAmountTo(toAddr, send)
@@ -130,23 +113,17 @@ func (df *DiscordFaucet) discordFaucet() error {
 
 		}
 
-		//	sequence++
-
 		var amount string
 		for _, v := range send {
-
 			amount += v.String() + " "
-
 		}
 
 		res = fmt.Sprintf("Cha-Ching! %s +%s", toAddr, amount)
 
 		dg.ChannelMessageSend(m.ChannelID, "<@"+m.Author.ID+"> "+res)
-
 	})
 
 	return nil
-
 }
 
 // This function will be called every time a new
@@ -154,33 +131,24 @@ func (df *DiscordFaucet) discordFaucet() error {
 // It returns true and valid response if the message from discord is valid.
 // Other we returns false with an empty string,which we should ingore.
 func (df *DiscordFaucet) process(m *discordgo.MessageCreate) (string, std.Coin, error) {
-
 	validAddr, err := retrieveAddr(m.Content)
 
 	zero := std.Coin{}
 
 	if err != nil {
-
 		return "", zero, errors.New("No valid addresse: %s", err)
-
 	}
 
 	bal, err := df.checkBalance(validAddr)
-
 	if err != nil {
-
 		return "", zero, errors.New("It seems our faucet is not working properly %s", err)
-
 	}
 
 	if bal.IsGTE(perAccountLimit) {
-
 		return "", zero, errors.New("Your account %s still has %d%s, no need to accumulate more testing tokens", validAddr, bal.Amount, bal.Denom)
-
 	}
 
 	return validAddr, bal, nil
-
 }
 
 // retrive the first string with valid addresse length
@@ -203,9 +171,7 @@ func retrieveAddr(message string) (string, error) {
 	ok, err := isValid(addr)
 
 	if !ok {
-
 		return "", err
-
 	}
 
 	return addr, nil
@@ -234,7 +200,6 @@ func isValid(addr string) (bool, error) {
 // return true if the account balance is within limit
 // return amount of token from
 func (df *DiscordFaucet) checkBalance(addr string) (std.Coin, error) {
-
 	qopts := client.QueryOptions{
 		Path: fmt.Sprintf("auth/accounts/%s", addr),
 	}
@@ -255,11 +220,8 @@ func (df *DiscordFaucet) checkBalance(addr string) (std.Coin, error) {
 
 	if len(balances) > 0 {
 		for i, v := range balances {
-
 			if v.Denom == "ugnot" {
-
 				bal = balances[i]
-
 			}
 		}
 	}

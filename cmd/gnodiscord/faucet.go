@@ -2,11 +2,9 @@ package main
 
 import (
 	"fmt"
-
 	"os"
 	"os/signal"
 	"strconv"
-
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
@@ -21,10 +19,7 @@ import (
 	"github.com/gnolang/gno/pkgs/std"
 )
 
-var (
-	perAccountLimit = std.NewCoin("ugnot", 350000000) // 350 gnot
-
-)
+var perAccountLimit = std.NewCoin("ugnot", 350000000) // 350 gnot
 
 // A valid gno address string length is 40
 const addressStringLength = 40
@@ -38,13 +33,14 @@ type faucetOptions struct {
 	Send      string `flag:"send" help:"send coins per request"`
 	Memo      string `flag:"memo" help:"any descriptive text"`
 	PkgPath   string `flag:"pkgpath" help:"pacakge holding the faucet fund"`
+	Limit     string `flag:"limit" help:"per transfer and per user account limit"`
 	BotToken  string `flag:"token" help:"discord bot token - must provide"`
 	BotName   string `flag:"bot-name" help:"discord bot name - must provide"`
 	Channel   string `flag:"channel" help:"discord bot channel id - must provide"`
 	Guild     string `flag:"guild" help:"discord bot guild/server id - must provide"`
 }
 
-var DefaultServeOptions = faucetOptions{
+var DefaultFaucetOptions = faucetOptions{
 	BaseOptions: client.DefaultBaseOptions,
 	ChainID:     "", // must override
 
@@ -53,6 +49,7 @@ var DefaultServeOptions = faucetOptions{
 	Send:      "5000000ugnot",
 	Memo:      "disccord faucet",
 	PkgPath:   "gno.land/r/faucet",
+	Limit:     "350000000ugnot",
 
 	BotToken: "", // must override
 	BotName:  "", // must override
@@ -83,7 +80,6 @@ type DiscordFaucet struct {
 
 // NewDiscordFaucet construct an instance
 func NewDiscordFaucet(name, pass string, opts faucetOptions) (*DiscordFaucet, error) {
-
 	kb, err := keys.NewKeyBaseFromDir(opts.Home)
 	if err != nil {
 		return nil, err
@@ -93,8 +89,14 @@ func NewDiscordFaucet(name, pass string, opts faucetOptions) (*DiscordFaucet, er
 		return nil, err
 	}
 
-	return &DiscordFaucet{
+	// sign a dummy value to validate key pass
+	const dummy = "test"
+	_, _, err = kb.Sign(name, pass, []byte(dummy))
+	if err != nil {
+		return nil, err
+	}
 
+	return &DiscordFaucet{
 		keybase: kb,
 		keyinfo: info,
 		keyname: name,
@@ -124,15 +126,11 @@ func faucetApp(cmd *command.Command, args []string, iopts interface{}) error {
 	}
 
 	if opts.BotName == "" {
-
 		return errors.New("discord bot name not specified")
-
 	}
 
 	if opts.Guild == "" {
-
 		return errors.New("discord bot guild/server id not specified")
-
 	}
 
 	remote := opts.Remote
@@ -140,9 +138,15 @@ func faucetApp(cmd *command.Command, args []string, iopts interface{}) error {
 		return errors.New("missing remote url")
 	}
 
+	var err error
+	perAccountLimit, err = std.ParseCoin(opts.Limit)
+	if err != nil {
+		panic(err)
+	}
+
 	// XXX XXX
 	// Read supply account pubkey.
-	var err error
+
 	name := args[0]
 	var pass string
 	if opts.Quiet {
@@ -153,20 +157,19 @@ func faucetApp(cmd *command.Command, args []string, iopts interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	// validate password
+
 	// start a discord session
 
 	df, err := NewDiscordFaucet(name, pass, opts)
-
 	if err != nil {
-
 		return err
-
 	}
 	// Start the bot
 
 	err = df.Start()
 	if err != nil {
-
 		return err
 	}
 
@@ -215,7 +218,6 @@ func (df *DiscordFaucet) sendAmountTo(to string, send std.Coins) error {
 }
 
 func (df *DiscordFaucet) signAndBroadcast(tx std.Tx) error {
-
 	// query account to get account number and sequece
 
 	accountAddr := df.keyinfo.GetAddress().String()
@@ -279,5 +281,4 @@ func (df *DiscordFaucet) signAndBroadcast(tx std.Tx) error {
 	}
 
 	return nil
-
 }

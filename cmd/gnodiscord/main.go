@@ -1,9 +1,10 @@
 package main
 
 import (
+	"os"
+
 	"github.com/gnolang/gno/pkgs/command"
 	"github.com/gnolang/gno/pkgs/errors"
-	"os"
 )
 
 type (
@@ -15,7 +16,7 @@ type (
 )
 
 var mainApps AppList = []AppItem{
-	{App: faucetApp, Name: "faucet", Desc: "discord faucet", Defaults: DefaultServeOptions},
+	{App: faucetApp, Name: "faucet", Desc: "discord faucet", Defaults: DefaultFaucetOptions},
 }
 
 func main() {

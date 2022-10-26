@@ -56,17 +56,21 @@ We can set a limit for each, say 400gnot per account. We give max 400gnot for fi
 
 ## Instruction
 
-#### 0 Compile the code
+#### 0) Compile the code
 
- make
+     make
 
-#### 1 Deploy faucet contract and assign controller the faucet
+#### 1) Deploy faucet contract and assign controller the faucet
 
  please modify the the address in the script.
 
      ./provison.sh
 
-#### 2 start the bot
+#### 2) start the bot
+
+check out
+
+      ./startbot.sh
 
 The following flags are required when you run the gnobot. We do not recommend storing the discord token on your local machine, not even in the env file.
 
